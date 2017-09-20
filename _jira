@@ -96,6 +96,7 @@ command_values="\
   in-progress
   issuelink
   issuelinktypes
+  issuetypes
 "
  
   opts+=("1:Command:(($command_values))")
@@ -202,7 +203,7 @@ command_values="\
       _arguments $opts
       ;;
 
-    components)
+    components|issuetypes)
       opts+=($template_flag
              $gjq_flag
              $project_flag)
