@@ -1,0 +1,215 @@
+#compdef jira
+
+function projects(){
+  yq -r '.project, .projects[]?' ~/.jira.d/config.yml | tr '\n' ' ' | sed 's_ $__'
+}
+
+_openissues(){
+  IFS=$'\n'
+  local issues; issues=($(jira ls --query "project in ($(projects | tr ' ' ',')) and resolution = Unresolved" | tr --delete "'\"\$&" | sed -r -e "s_:[ ]+(.*)_:\1\n_"))
+  _describe 'ISSUE' issues
+}
+
+_issuetypes(){
+  IFS=$'\n'
+  local issuetypes=($(jira issuetypes | sed -e "s/\x1b\[.\{1,5\}m//g" | tr --delete "'\"\$&" | sed -r -e "s_:[ ]+(.*)_:\1\n_"))
+  _describe 'ISSUETYPES' issuetypes
+}
+
+_issuelinktypes(){
+  IFS=$'\n'
+  local issuelinktypes=($(jira issuelinktypes | jq '.issueLinkTypes[] | "\(.name):\(.outward)"' | tr --delete '"'))
+  _describe 'ISSUELINKTYPE' issuelinktypes
+}
+
+_jira(){
+  local      browse_flag=('(-b --browse)'{-b,--browse}'[Open issue(s) in browser after operation]')
+  local      editor_flag=('--editor=[Editor to use]:EDITOR:()')
+  local    template_flag=('(-t --template=)'{-t,--template=}'[Template to use for output]:TEMPLATE:_files')
+  local      noedit_flag=('--noedit[noedit]')
+  local     comment_flag=('(-m --comment=)'{-m,--comment=}'[Comment message for issue]:COMMENT:()')
+  local    override_flag=('(-o --override=)'{-o,--override=}'[Set custom key/value pairs]:KEY=VAL:()')
+  local     project_flag=('(-p --project=)'{-p,--project=}'[Project to Search for]:PROJECT:()')
+  local        name_flag=('(-n --name=)'{-n,--name=}'[Name]:NAME:()')
+  local description_flag=('(-d --description=)'{-d,--description=}'[Description]:DESCRIPTION:()')
+  local        lead_flag=('(-l --lead=)'{-l,--lead=}'[Lead]:LEAD:()')
+  local         gjq_flag=('--gjq=[GJSON Query to filter output]:GJQ:()')
+  local   issuetype_flag=('(-i --issuetype=)'{-i,--issuetype=}'[Jira Issue Type]:ISSUETYPE:_issuetypes')
+  local    savefile_flag=('--saveFile=[SaveFile]:SAVEFILE:_files')
+  local   directory_flag=('(-d --directory=)'{-d,--directory=}'[Directory to export templates to]:DIR:_directories')
+  local   timespent_flag=('(-T --time-spent=)'{-T,--time-spent=}'[Time spent working on issue]:TIMESPENT:()')
+  
+  local query_flags=($template_flag
+                     $gjq_flag
+                    '(-a --assignee=)'{-a,--assignee=}'[Username assigned the issue]:USER:()'
+                    '(-c --component=)'{-c,--component=}'[Component to Search for]:COMPONENT:()'
+                    $issuetype_flag
+                    '(-l --limit=)'{-l,--limit=}'[Maximum number of results to return in query]:VAL:()'
+                    $project_flag
+                    '(-n --named-query=)'{-n,--named-query=}'[Name of a Query]:NAMED-QUERY:()'
+                    '(-q --query=)'{-q,--query=}'[Jira Query Language expression for the search]:JQL:()'
+                    '(-f --queryfields=)'{-f,--queryfields=}'[Fields that are used in "list" template]:FIELDS:_values -s , "Fields" summary created updated priority status reporter assignee'
+                    '(-r --reporter=)'{-r,--reporter=}'[Reporter to search for]:REPORTER:()'
+                    '(-S --status=)'{-S,--status=}'[Issue Status]:STATUS:()'
+                    '(-s --sort=)'{-s,--sort=}'[For list operations, sort issues]:ORDER:()'
+                    '(-w --watcher=)'{-w,--watcher=}'[Watcher to add to issue or search for]:USER:()')
+  
+  local global_flags=('(-h --help)'{-h,--help}'[Show context-sensitive help]'
+                      '(-v --verbose)'{-v,--verbose}'[Increase verbosity for debugging]'
+                      '(-e --endpoint=)'{-e,--endpoint=}'[Base URI to use for Jira]:ENDPOINT:()'
+                      '(-k --insecure)'{-k,--insecure}'[Disable TLS certificate verification]'
+                      '(-Q --quiet)'{-Q,--quiet}'[Suppress output to console]'
+                      '--unixproxy=[Path for a unix-socket proxy]:UNIXPROXY:_files'
+                      '(-u --user=)'{-u,--user=}'[Login name used for authentication with Jira service]:USER:()')
+
+  local opts=($global_flags)
+
+command_values="\
+  help
+  version
+  acknowledge
+  assign
+  attach
+  backlog
+  block
+  browse
+  close
+  comment
+  component
+  components
+  create
+  createmeta
+  done
+  dup
+"
+ 
+  opts+=("1:Command:(($command_values))")
+
+  case $words[2] in
+
+    acknowledge|backlog|close|done)
+      opts+=("2:Issue:_openissues"
+             $browse_flag
+             $template_flag
+             $noedit_flag
+             $comment_flag
+             $override_flag)
+      _arguments $opts
+      ;;
+
+    comment)
+      opts+=("2:Issue:_openissues"
+             $browse_flag
+             $editor_flag
+             $template_flag
+             $noedit_flag
+             $comment_flag)
+      _arguments $opts
+      ;;
+
+    create)
+      opts+=($browse_flag
+             $editor_flag
+             $template_flag
+             $noedit_flag
+             $project_flag
+             $issuetype_flag
+             $comment_flag
+             $override_flag
+             $savefile_flag)
+      _arguments $opts
+      ;;
+
+    assign)
+      opts+=("2:Issue:_openissues"
+             "3:ASSIGNEE:()"
+             $browse_flag
+             '--default[use default user for assignee]')
+      _arguments $opts
+      ;;
+
+    block|dup)
+      opts+=('2:SOURCE:_openissues'
+             '3:TARGET:_openissues'
+             $browse_flag
+             $editor_flag
+             $template_flag
+             $comment_flag)
+      _arguments $opts
+      ;;
+      
+    browse)
+      opts+=("2:Issue:_openissues")
+      _arguments $opts
+      ;;
+
+    component)
+      opts+=('2:Subcommand:((add))'
+             $editor_flag
+             $template_flag
+             $noedit_flag
+             $project_flag
+             $name_flag
+             $description_flag
+             $lead_flag)
+      _arguments $opts
+      ;;
+
+    components)
+      opts+=($template_flag
+             $gjq_flag
+             $project_flag)
+      _arguments $opts
+      ;;
+
+    createmeta)
+      opts+=($template_flag
+             $gjq_flag
+             $project_flag
+             $issuetype_flag)
+      _arguments $opts
+      ;;
+
+    attach)
+      opts+=("2:Subcommand:((create get list ls remove rm))")
+      case $words[3] in
+        create)
+          opts+=('3:ISSUE:_openissues'
+                 '4:ATTACHMENT:_files'
+                 $browse_flags
+                 '--saveFile=[Write attachment information as yaml to file]:SAVEFILE:_files'
+                 '(-f --filename=)'{-f,--filename=}'[Filename to use for attachment]:FILENAME:()')
+          _arguments $opts
+          ;;
+
+        get)
+          opts+=('3:ATTACHMENT-ID:()'
+                 '(-o --output=)'{-o,--output=}'[Write attachment to specified file name, "-" for stdout]:FILENAME:()')
+          _arguments $opts
+          ;;
+
+        list|ls)
+          opts+=('3:ISSUE:_openissues'
+                 $browse_flag
+                 '(-t --template=)'{-t,--template=}'[Template to use for output]:TEMPLATE:_files')
+          _arguments $opts 
+          ;;
+
+        remove|rm)
+          opts+=('3:ATTACHMENT-ID:()')
+          _arguments $opts
+          ;;
+
+        *)
+          _arguments $opts
+          ;;
+      esac
+      ;;
+    
+    *)
+      _arguments $opts
+      ;;
+  esac
+}
+
+_jira
