@@ -90,6 +90,7 @@ command_values="\
   dup
   edit
   editmeta
+  epic
 "
  
   opts+=("1:Command:(($command_values))")
@@ -236,6 +237,45 @@ command_values="\
       esac
       ;;
     
+    epic)
+      opts+=("2:Subcommand:((add create list ls remove rm))")
+      case $words[3] in
+        add)
+          opts+=('3:EPIC:()'
+                 '4:ISSUE:_openissues')
+          _arguments $opts
+          ;;
+
+        create)
+            opts+=($browse_flag
+                   $editor_flag
+                   $template_flag
+                   $noedit_flag
+                   $project_flag
+                   '(-n --epic-name=)'{-n,--epic-name=}'[Epic Name]:EPIC-NAME:()'
+                   $comment_flag
+                   $override_flag
+                   $savefile_flag)
+          _arguments $opts
+          ;;
+
+        list|ls)
+          opts+=('3:EPIC:()'
+                 $query_flags)
+          _arguments $opts
+          ;;
+
+        remove|rm)
+          opts+=('3:ISSUE:_openissues')
+          _arguments $opts
+          ;;
+
+        *)
+          _arguments $opts
+          ;;
+      esac
+      ;;
+
     *)
       _arguments $opts
       ;;
