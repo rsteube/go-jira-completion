@@ -93,13 +93,14 @@ command_values="\
   epic
   export-templates
   fields
+  in-progress
 "
  
   opts+=("1:Command:(($command_values))")
 
   case $words[2] in
 
-    acknowledge|backlog|close|done)
+    acknowledge|backlog|close|done|in-progress)
       opts+=("2:Issue:_openissues"
              $browse_flag
              $template_flag
