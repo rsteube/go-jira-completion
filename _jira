@@ -41,7 +41,7 @@ _jira(){
   local         gjq_flag=('--gjq=[GJSON Query to filter output]:GJQ:()')
   local   issuetype_flag=('(-i --issuetype=)'{-i,--issuetype=}'[Jira Issue Type]:ISSUETYPE:_issuetypes')
   local    savefile_flag=('--saveFile=[SaveFile]:SAVEFILE:_files')
-  local   directory_flag=('(-d --directory=)'{-d,--directory=}'[Directory to export templates to]:DIR:_directories')
+  local         dir_flag=('(-d --dir=)'{-d,--dir=}'[Directory to write templates to]:DIR:_directories')
   local   timespent_flag=('(-T --time-spent=)'{-T,--time-spent=}'[Time spent working on issue]:TIMESPENT:()')
   local  namedquery_flag=('(-n --named-query=)'{-n,--named-query=}'[Name of a Query]:NAMED-QUERY:()')
   local       query_flag=('(-q --query=)'{-q,--query=}'[Jira Query Language expression for the search]:JQL:()')
@@ -91,6 +91,7 @@ command_values="\
   edit
   editmeta
   epic
+  export-templates
 "
  
   opts+=("1:Command:(($command_values))")
@@ -235,6 +236,12 @@ command_values="\
           _arguments $opts
           ;;
       esac
+      ;;
+
+    export-templates)
+      opts+=($template_flag
+             $dir_flag)
+      _arguments $opts
       ;;
     
     epic)
