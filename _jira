@@ -23,7 +23,7 @@ _issuetypes(){
 
 _issuelinktypes(){
   IFS=$'\n'
-  local issuelinktypes=($(jira issuelinktypes | jq '.issueLinkTypes[] | "\(.name):\(.outward)"' | tr --delete '"'))
+  local issuelinktypes=($(jira issuelinktypes | jq '.[] | "\(.name):\(.outward)"' | tr --delete '"'))
   _describe 'ISSUELINKTYPE' issuelinktypes
 }
 
@@ -94,6 +94,7 @@ command_values="\
   export-templates
   fields
   in-progress
+  issuelink
 "
  
   opts+=("1:Command:(($command_values))")
@@ -165,6 +166,17 @@ command_values="\
     block|dup)
       opts+=('2:SOURCE:_openissues'
              '3:TARGET:_openissues'
+             $browse_flag
+             $editor_flag
+             $template_flag
+             $comment_flag)
+      _arguments $opts
+      ;;
+
+    issuelink)
+      opts+=('2:SOURCE:_openissues'
+             '3:ISSUELINKTYPE:_issuelinktypes'
+             '4:TARGET:_openissues'
              $browse_flag
              $editor_flag
              $template_flag
