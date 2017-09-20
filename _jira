@@ -101,6 +101,7 @@ command_values="\
   list ls
   login
   logout
+  rank
 "
  
   opts+=("1:Command:(($command_values))")
@@ -176,6 +177,14 @@ command_values="\
              $editor_flag
              $template_flag
              $comment_flag)
+      _arguments $opts
+      ;;
+    
+    rank)
+      opts+=('2:FIRST-ISSUE:_openissues'
+             '3:RANK:(after before)'
+             '4:SECOND-ISSUE:_openissues'
+             $browse_flag)
       _arguments $opts
       ;;
 
