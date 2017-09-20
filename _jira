@@ -98,6 +98,7 @@ command_values="\
   issuelinktypes
   issuetypes
   labels
+  list ls
 "
  
   opts+=("1:Command:(($command_values))")
@@ -281,6 +282,11 @@ command_values="\
           _arguments $opts
           ;;
       esac
+      ;;
+
+    list|ls)
+      opts+=($query_flags)
+      _arguments $opts
       ;;
     
     epic)
