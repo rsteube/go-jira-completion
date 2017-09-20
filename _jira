@@ -95,6 +95,7 @@ command_values="\
   fields
   in-progress
   issuelink
+  issuelinktypes
 "
  
   opts+=("1:Command:(($command_values))")
@@ -252,7 +253,7 @@ command_values="\
       esac
       ;;
 
-    fields)
+    fields|issuelinktypes)
       opts+=($template_flag
              $gjq_flag)
       _arguments $opts
