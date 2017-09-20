@@ -99,6 +99,8 @@ command_values="\
   issuetypes
   labels
   list ls
+  login
+  logout
 "
  
   opts+=("1:Command:(($command_values))")
