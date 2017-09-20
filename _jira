@@ -1,8 +1,11 @@
 #compdef jira
 
+function projects(){
+  yq -r '.project, .projects[]?' ~/.jira.d/config.yml | tr '\n' ' ' | sed 's_ $__'
+}
+
 _projects(){
-  IFS=$'\n'
-  local projects=($(yq -r '.project, .projects[]?' ~/.jira.d/config.yml | sed 's_ $__'))
+  local projects=($(projects))
   _describe 'PROJECT' projects
 }
 
