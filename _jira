@@ -92,6 +92,7 @@ command_values="\
   editmeta
   epic
   export-templates
+  fields
 "
  
   opts+=("1:Command:(($command_values))")
@@ -236,6 +237,12 @@ command_values="\
           _arguments $opts
           ;;
       esac
+      ;;
+
+    fields)
+      opts+=($template_flag
+             $gjq_flag)
+      _arguments $opts
       ;;
 
     export-templates)
