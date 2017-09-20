@@ -1,7 +1,9 @@
 #compdef jira
 
-function projects(){
-  yq -r '.project, .projects[]?' ~/.jira.d/config.yml | tr '\n' ' ' | sed 's_ $__'
+_projects(){
+  IFS=$'\n'
+  local projects=($(yq -r '.project, .projects[]?' ~/.jira.d/config.yml | sed 's_ $__'))
+  _describe 'PROJECT' projects
 }
 
 _openissues(){
@@ -29,7 +31,7 @@ _jira(){
   local      noedit_flag=('--noedit[noedit]')
   local     comment_flag=('(-m --comment=)'{-m,--comment=}'[Comment message for issue]:COMMENT:()')
   local    override_flag=('(-o --override=)'{-o,--override=}'[Set custom key/value pairs]:KEY=VAL:()')
-  local     project_flag=('(-p --project=)'{-p,--project=}'[Project to Search for]:PROJECT:()')
+  local     project_flag=('(-p --project=)'{-p,--project=}'[Project to Search for]:PROJECT:_projects')
   local        name_flag=('(-n --name=)'{-n,--name=}'[Name]:NAME:()')
   local description_flag=('(-d --description=)'{-d,--description=}'[Description]:DESCRIPTION:()')
   local        lead_flag=('(-l --lead=)'{-l,--lead=}'[Lead]:LEAD:()')
