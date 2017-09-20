@@ -43,6 +43,8 @@ _jira(){
   local    savefile_flag=('--saveFile=[SaveFile]:SAVEFILE:_files')
   local   directory_flag=('(-d --directory=)'{-d,--directory=}'[Directory to export templates to]:DIR:_directories')
   local   timespent_flag=('(-T --time-spent=)'{-T,--time-spent=}'[Time spent working on issue]:TIMESPENT:()')
+  local  namedquery_flag=('(-n --named-query=)'{-n,--named-query=}'[Name of a Query]:NAMED-QUERY:()')
+  local       query_flag=('(-q --query=)'{-q,--query=}'[Jira Query Language expression for the search]:JQL:()')
   
   local query_flags=($template_flag
                      $gjq_flag
@@ -51,8 +53,8 @@ _jira(){
                     $issuetype_flag
                     '(-l --limit=)'{-l,--limit=}'[Maximum number of results to return in query]:VAL:()'
                     $project_flag
-                    '(-n --named-query=)'{-n,--named-query=}'[Name of a Query]:NAMED-QUERY:()'
-                    '(-q --query=)'{-q,--query=}'[Jira Query Language expression for the search]:JQL:()'
+                    $namedquery_flag
+                    $query_flag
                     '(-f --queryfields=)'{-f,--queryfields=}'[Fields that are used in "list" template]:FIELDS:_values -s , "Fields" summary created updated priority status reporter assignee'
                     '(-r --reporter=)'{-r,--reporter=}'[Reporter to search for]:REPORTER:()'
                     '(-S --status=)'{-S,--status=}'[Issue Status]:STATUS:()'
@@ -86,6 +88,7 @@ command_values="\
   createmeta
   done
   dup
+  edit
 "
  
   opts+=("1:Command:(($command_values))")
@@ -122,6 +125,19 @@ command_values="\
              $comment_flag
              $override_flag
              $savefile_flag)
+      _arguments $opts
+      ;;
+
+    edit)
+      opts+=("2:Issue:_openissues"
+             $browse_flag
+             $editor_flag
+             $template_flag
+             $noedit_flag
+             $namedquery_flag
+             $query_flag
+             $comment_flag
+             $override_flag)
       _arguments $opts
       ;;
 
