@@ -97,6 +97,7 @@ command_values="\
   issuelink
   issuelinktypes
   issuetypes
+  labels
 "
  
   opts+=("1:Command:(($command_values))")
@@ -264,6 +265,22 @@ command_values="\
       opts+=($template_flag
              $dir_flag)
       _arguments $opts
+      ;;
+
+    labels)
+      opts+=("2:Subcommand:((add remove rm set))")
+      case $words[3] in
+        add|remove|rm|set)
+          opts+=('3:ISSUE:_openissues'
+                 '4:LABEL:()'
+                 $browse_flag)
+          _arguments $opts
+          ;;
+
+        *)
+          _arguments $opts
+          ;;
+      esac
       ;;
     
     epic)
